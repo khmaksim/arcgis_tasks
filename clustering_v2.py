@@ -53,12 +53,36 @@ arcpy.Sort_management(source_dataset, sort_source_dataset, sort_fields, sort_met
 
 rows_prep_table = {}
 
-with arcpy.da.SearchCursor(in_features, ['FID', 'Habs', 'Hpre']) as cursor:
+objects_id = []
+
+with arcpy.da.SearchCursor(sort_source_dataset, ['OBJECTID', 'Habs', 'Hpre', 'FID_pol_klusters']) as cursor:
+	height_abs_max = 0
+	height_pre_max = 0
+	object_id = -1
+	fid = -1
+
 	for row in cursor:
-		rows_prep_table[row[0]] = (row[1], row[2])
+		if fid == row[3]:
+			if height_abs_max < row[1]:
+				height_abs_max = row[1]
+				height_pre_max = row[2]
+				object_id = row[0]
+			elif height_abs_max == row[1] and height_pre_max < row[2]:
+				height_abs_max = row[1]
+				height_pre_max = row[2]
+				object_id = row[0]
+			continue
+		elif fid != row[3] and fid != -1:
+			objects_id.append(object_id)
+
+		object_id = row[0]
+		height_abs_max = row[1]
+		height_pre_max = row[2]
+		fid = row[3]
 	del row
 del cursor
 
+print(len(num_row_order))
 fids_selected = {}
 num_row_order = []
 
@@ -129,35 +153,6 @@ with arcpy.da.UpdateCursor(out_table, ['is_delete']) as cursor:
 	del row
 del cursor
 
-
-	# for row in cursor:
-	# 	if input_fid == row[0]:
-	# 		if max_Habs > row[2]:
-	# 			row[4] = 1
-	# 			cursor.updateRow(row)
-	# 		elif max_Habs < row[2]:
-	# 			prev_row[4] = 1
-	# 			cursor.updateRow(prev_row)
-	# 			max_Habs = row[2]
-	# 			max_Hpre = row[3]
-	# 			prev_row = row
-	# 		elif max_Hpre > row[3]:
-	# 			row[4] = 1
-	# 			cursor.updateRow(row)
-	# 		elif max_Hpre < row[3]:
-	# 			prev_row[4] = 1
-	# 			cursor.updateRow(prev_row)
-	# 			max_Habs = row[2]
-	# 			max_Hpre = row[3]
-	# 			prev_row = row
-	# 		else:
-	# 			row[4] = 1
-	# 			cursor.updateRow(row)
-	# 	elif input_fid != row[0]:
-	# 		prev_row = row
-	# 		input_fid = row[0]
-	# 		max_Habs = row[2]
-	# 		max_Hpre = row[3]
 
 result_table = "prep_res.dbf"
 tempTableView = "TableView"
