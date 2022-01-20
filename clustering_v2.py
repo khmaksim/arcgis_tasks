@@ -4,11 +4,6 @@ import arcpy
 arcpy.env.workspace = "C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/cluster/BASE.gdb"
 arcpy.env.overwriteOutput = True
 
-# in_table = "prep"
-# out_table = "prep_dist"
-# where_clause = '"NEAR_DIST" <= 2000'
-# arcpy.TableSelect_analysis(in_table, out_table, where_clause)
-
 # set local variables
 source_dataset = "obstcl"
 sort_source_dataset = "obstcl_sort"
@@ -19,9 +14,6 @@ sort_method = "PEANO"
 
 # sort by FID_pol_klusters
 arcpy.Sort_management(source_dataset, sort_source_dataset, sort_fields, sort_method)
-
-sort_source_lyr = "obstcl_lyr"
-arcpy.MakeFeatureLayer_management(sort_source_dataset, sort_source_lyr)
 
 objects_id = []
 
@@ -52,12 +44,6 @@ with arcpy.da.SearchCursor(sort_source_dataset, ['OBJECTID_1', 'Habs', 'Hpre', '
 	del row
 del cursor
 
-print(len(objects_id))
-
 where_sql = 'OBJECTID_1 IN (' + ','.join(str(id) for id in objects_id) + ')'
-arcpy.SelectLayerByAttribute_management(sort_source_lyr, "NEW_SELECTION", where_sql)
-
-result_table = "prep_res.dbf"
-tempTableView = "TableView"
-arcpy.MakeTableView_management(out_table, tempTableView)
-arcpy.SelectLayerByAttribute_management(tempTableView, "NEW_SELECTION", "[is_delete] = '0'")
+arcpy.SelectLayerByAttribute_management(sort_source_dataset, "NEW_SELECTION", where_sql)
+arcpy.CopyFeatures_management(sort_source_dataset, 'result')
