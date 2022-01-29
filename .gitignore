@@ -1,4 +1,11 @@
 *.zip
 *.gdb
+*.pri
+*.dbf
+*.cpg
+*.shp
+*.shp.*
+*.shx
+*.sde
 BASE/
 backpu/
