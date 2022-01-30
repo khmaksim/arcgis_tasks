@@ -5,10 +5,9 @@ import os
 from create_database_connection import CreateDatabaseConnection
 
 # Set variables
-arcpy.env.workspace = r'C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/create_shp'
+arcpy.env.workspace = r'C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/tasks'
 arcpy.env.overwriteOutput = True
-work_path = r'C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/create_shp/'
-out_path = r'C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/create_shp'
+work_path = r'C:/Users/kolobok/projects/python/Aviacominfo/ArcGis/tasks/'
 name_sql_script = work_path + 'airways.sql'
 result_shp = 'airways.shp'
 
@@ -43,7 +42,8 @@ if connection.create_connection() == True:
     arcpy.AddField_management(result_shp, 'RTE_TYPE','TEXT')
     arcpy.AddField_management(result_shp, 'ZZZ','LONG')
 
-    with arcpy.da.InsertCursor(result_shp, ['NAME', 'RTE_POINTS', 'ik1', 'ik2', 'HMIN', 'HMAX', 'LENGTH_KM', 'COUNTRY']) as cursor:
+    with arcpy.da.InsertCursor(result_shp, ['NAME', 'RTE_POINTS', 'ik1', 'ik2', 'HMIN', 'HMAX', 
+        'LENGTH_KM', 'COUNTRY', 'LINE_TYPE', 'RTE_TYPE']) as cursor:
         for row in rows:
             name = row[0]
             rte_point = row[1] + '-' + row[2]
@@ -53,5 +53,7 @@ if connection.create_connection() == True:
             h_max = row[7] + str(row[8])
             length = row[9]
             country = row[10]
-            cursor.insertRow([name, rte_point, ik1, ik2, h_min, h_max, length, country])
+            line_type = 'INTER'
+            rte_type = row[11]
+            cursor.insertRow([name, rte_point, ik1, ik2, h_min, h_max, length, country, line_type, rte_type])
     del cursor

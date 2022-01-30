@@ -7,5 +7,7 @@
 *.shp.*
 *.shx
 *.sde
+*.prj
+*.pyc
 BASE/
 backpu/
